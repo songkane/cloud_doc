@@ -20,7 +20,7 @@ Currently, when create remote k8s cluster by cluster api provider (iks/aks/ocp/g
  3. MCM-UI call this api-extension to discover the cluster specification
  4. We can follow k8s [metrics-server](https://github.com/kubernetes-incubator/metrics-server) to implemet api-extension
 
-# I prefer Solution 2: 
+# I prefer to Solution 2: 
  * No time windows issue
  * No need to persist huge and reduplicate cluster specification data, such as flavor/machine to etcd
  * Easy to MCM/UI to integration
