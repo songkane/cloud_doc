@@ -6,9 +6,9 @@ Currently, when create remote k8s cluster by cluster api provider (iks/aks/ocp/g
 
 Most of the public cloud resource is not role based/account resource, that means different user can use same cloud resource without permission, validation check or filter, but same resource not:
 
-IKS: `publicVlan` and `privateVlan` is role based resource
-AKS: `location` is account/subscription based resource
-OCP: `region` is role based resource
+1. IKS: `publicVlan` and `privateVlan` is role based resource
+2. AKS: `location` is account/subscription based resource
+3. OCP: `region` is role based resource
 
 ## Solution
 
