@@ -9,7 +9,7 @@ Any discrepancies should be rectified in the main Cluster API glossary.
 
 ## Summary
 
-In current Cluster API (CAPI) , users can create Kubernetes cluster by a series of [providers](https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/book/src/reference/providers.md#infrastructure), these providers interact with Cloud infrastructure resource such as Machine, LB, SecurityGroups and InstanceGroup/AutoScaleGroup etc directly, these provider are generally referred to as infrastructure provider. The infrastructure provider usually works by create machines on the Cloud and turning them to Kubernetes master nodes(control plane) and worker nodes and finally expose them as workload/target Kubernetes cluster to end user for using. 
+In current Cluster API (CAPI) , users can create Kubernetes cluster by a series of [providers](https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/book/src/reference/providers.md#infrastructure), these providers interact with Cloud infrastructure resource such as Machine, LB, SecurityGroups and InstanceGroup/AutoScaleGroup etc directly, these provider are generally referred to as infrastructure provider. The infrastructure provider usually works by create machines on the Cloud and turning them to Kubernetes master nodes (control plane) and worker nodes and finally expose them as workload/target Kubernetes cluster to end user for using. 
 
 The most of public clouds provider not only provide infrastructure service but also provide Kubernetes as a service(K8SaaS). For example, [AWS provider](https://github.com/kubernetes-sigs/cluster-api-provider-aws) depends on Amazon EC2 service to build Kubernetes cluster, actually Amazon Elastic Kubernetes Service (Amazon EKS) can build Kubernetes cluster as well. This proposal outlines adding a new approach to CAPI by leveraging Managed Kubernetes provider like AKS, IKS, GKE and EKS etc to create and manage Kubernetes cluster directly. The operations to provision infrastructure specific resource and turning machine to Kubernetes node are provided by MKP itself, no cluster infrastructure provider and bootstrap provider (kubeadm by default) get involved anymore. 
 
@@ -17,7 +17,7 @@ MKP is an enhancement and optional against current infrastructure provider. Enha
 
 ## Motivation
 
-The public clouds provider have invested a significant amount of time optimizing and operation reliable to manage Kubernetes cluster. The current Cluster API provider provisioning and turning solution have a lot of steps and communication with infrastructure layer. Allowing users of CAPI to leverage the optimization way exposed by MKP could prove beneficial.
+The public clouds provider have invested a significant amount of time optimizing and operation reliable to manage Kubernetes cluster. The existing CAPI provider provisioning and turning solution have a lot of steps and communications with infrastructure layer. Allowing users of CAPI to leverage the optimization way exposed by MKP could prove beneficial.
 
 **Potential benefits include:**
 - Faster cluster provisioning
