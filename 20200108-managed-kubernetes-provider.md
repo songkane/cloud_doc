@@ -43,9 +43,15 @@ The public clouds provider have invested a significant amount of time optimizing
 
 This proposal introduces MKP for the purpose of delegating the management of Kubernetes cluster to existing infrastructure [provider](https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/book/src/reference/providers.md#infrastructure), after that, the providers in `Goals` section will have 2 ways manage Kubernetes cluster according to different user case.
 
+It should have 3 approaches to extend existing [providers](https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/book/src/reference/providers.md#infrastructure) to have MKP functionality: 
+ 1.  Reuse `infrastructureRef`from `Cluster` but have new MKP implementation:  for example, [awscluster_controller.go](https://github.com/kubernetes-sigs/cluster-api-provider-aws/blob/master/controllers/awscluster_controller.go) VS `ekscluster_controller.go`
+ 2.  Implement MKP based controller Control Plane to fill the gap from `Non-Goals/Future Work` section in [kubeadm-based-control-plane.md](https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/proposals/20191017-kubeadm-based-control-plane.md), but cover both control plane and worker load plane.
+ 3.  (**I  prefered**)Create individual entity `managedK8SRef` to `Cluster` against `infrastructureRef`with new controller: for example, [awscluster_controller.go](https://github.com/kubernetes-sigs/cluster-api-provider-aws/blob/master/controllers/awscluster_controller.go) VS `ekscluster_controller.go`
+
+ 
 ## Implementation Details/Notes/Constraints
 
-The new entity `managedK8SRef` is added to `Cluster` against `infrastructureRef` aim to describe workload/target Kubernetes cluster specification,  take [AWS provider](https://github.com/kubernetes-sigs/cluster-api-provider-aws)  as an example,  the `EKSCluster` is MKP implementation for AWS, other cloud MKPs will have `IKSCluster`,  `AKSCluster` etc accordingly. 
+The new entity `managedK8SRef` is added to `Cluster` against `infrastructureRef` aim to describe workload/target Kubernetes cluster specification,  take [AWS provider](https://github.com/kubernetes-sigs/cluster-api-provider-aws)  as an example,  the `EKSCluster` is MKP implementation for AWS, other cloud MKPs will have `IKSCluster`,  `AKSCluster` etc accordingly.   
 
 - `Cluster` controller `Reconcile` function from CAPI will sync up with latest`EKSCluster` status and generate `kubeconfig`
 - `EKSCluster` controller `Reconcile` function from [AWS provider](https://github.com/kubernetes-sigs/cluster-api-provider-aws)  will handle EKS cluster life cycle management: create/scaling up/scaling down/delete.
