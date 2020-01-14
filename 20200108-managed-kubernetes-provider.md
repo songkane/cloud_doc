@@ -8,27 +8,27 @@ The lexicon used in this document is described in more detail [here](https://git
 
 ## Summary
 
-In current Cluster API, users can create Kubernetes cluster by a series of [providers](https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/book/src/reference/providers.md#infrastructure), the providers interact with cloud infrastructure resource such as machine, LB, security groups etc directly and are generally referred to as infrastructure provider. The infrastructure provider usually works by create machines on the cloud or bare metal and turning them into Kubernetes master nodes (control plane) or worker nodes, finally expose them as workload/target Kubernetes cluster to end user for using.
+In current Cluster API, users can create Kubernetes cluster by a series of [providers](https://github.com/kubernetes-sigs/cluster-api/blob/master/docs/book/src/reference/providers.md#infrastructure), the providers interact with cloud infrastructure resource such as machine, load balance, security groups directly and is generally referred to as infrastructure provider. The infrastructure provider usually works by create machines on the cloud or bare metal and turning them into Kubernetes master nodes (control plane) or worker nodes, finally expose them as workload/target Kubernetes cluster to end user for using.
 
-The most of public clouds provider not only provide infrastructure service but also provide K8SaaS as known as MKP . For example, [AWS provider](https://github.com/kubernetes-sigs/cluster-api-provider-aws) depends on Amazon EC2 service build Kubernetes cluster, actually Amazon Elastic Kubernetes Service (Amazon EKS) can achieve this as well. This proposal outlines adding a new approach to Cluster API by leveraging MKP like EKS, IKS, GKE and AKS etc to create and manage Kubernetes cluster directly. The operations to provision infrastructure specific resource and turning resource to Kubernetes node are provided by MKP itself, no cloud infrastructure resource interactions and bootstrap process (kubeadm by default) get involved in Cluster API anymore.
+The most of public clouds vendor not only provide infrastructure service but also provide K8SaaS as known as MKP . For example, [AWS provider](https://github.com/kubernetes-sigs/cluster-api-provider-aws) depends on Amazon EC2 service build Kubernetes cluster, actually Amazon Elastic Kubernetes Service (Amazon EKS) can achieve this as well. This proposal outlines adding a new approach to Cluster API by leveraging MKP like EKS, IKS, GKE and AKS, etc to create and manage Kubernetes cluster directly. The operations to provision infrastructure specific resource and turning resource to Kubernetes node are provided by MKP itself, no cloud infrastructure resource interactions and bootstrap process (kubeadm by default) get involved in Cluster API anymore.
 
-MKP is an enhancement and optional against current infrastructure provider, that means user still can use current Cluster API infrastructure provider but have another choice to manage workload/target Kubernetes cluster, since not every cloud provider will have MKP functionality.
+MKP is an enhancement and optional against current infrastructure provider, that means user still can use current Cluster API infrastructure provider but have another choice to manage workload/target Kubernetes cluster, since not every cloud vendor will have MKP functionality.
 
 ## Motivation
 
-The public clouds provider have invested a significant amount of time optimizing and reliable of operation to manage Kubernetes cluster. The current Cluster API provider provisioning and turning solution has a lot of steps and interactions with infrastructure layer which may lead error-prone. Allowing users of Cluster API to leverage the optimization approach exposed by MKP could prove beneficial.
+The public clouds cloud vendor have invested a significant amount of time optimizing and reliable of operation to manage Kubernetes cluster. The current Cluster API provider provisioning and turning solution has a lot of steps and interactions with infrastructure layer which may lead error-prone. Allowing users of Cluster API to leverage the optimization approach exposed by MKP could prove beneficial.
 
 **Potential benefits include:**
 - Faster cluster provisioning
 - Improved provisioning success rates
-- Automatic cluster operations for create/delete/upgrade/scaling if supported by cloud provider
-- Deeply integrated with cloud provider on storage, network, LB, security and HA
+- Automatic cluster operations for create/delete/upgrade/scaling if supported by cloud vendor
+- Deeply integrated with cloud provider on storage, network, load balance, security and HA
 - Improved user experience
    - less YAML files to maintain
 
 ### Goals
 
--  Enhance existing Cluster API providers for leveraging MKP to managing Kubernetes cluster.
+-  Enhance existing Cluster API providers for leveraging MKP to manage Kubernetes cluster.
   - Add [EKS](https://aws.amazon.com/eks/) support to [AWS provider](https://github.com/kubernetes-sigs/cluster-api-provider-aws) 
   - Add [IKS](https://www.ibm.com/cloud/container-service/) support to [IBM Cloud provider](https://github.com/kubernetes-sigs/cluster-api-provider-ibmcloud)
   - Add [AKS](https://azure.microsoft.com/en-in/services/kubernetes-service/) support to [Azure provider](https://github.com/kubernetes-sigs/cluster-api-provider-azure)
@@ -144,3 +144,8 @@ spec:
 
 -  The generic `Cluster` controller `Reconcile` from Cluster API core will sync up with the latest`EKSCluster` status and generate `kubeconfig`
 - The provider's cluster MKP controller `Reconcile` will handle cluster life cycle management: create/scaling up/scaling down/delete.
+
+####  Cluster update/upgrade
+
+
+####  Cluster  scaling up/down
