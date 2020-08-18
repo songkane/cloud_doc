@@ -96,20 +96,15 @@ K8s native support  `labelSelector` or`fieldSelector` in LIST API to  identify o
 1.  `fieldSelector` is preferred to use for combination query, but it only works for general attribute such as  metadata.name, client should try it first
 
 ```
-kubectl get secret -n test --field-selector "metadata.name=mysecret2,type=Opaque" --chunk-size=10
+kubectl get secret -n test --field-selector "metadata.name=mysecret2,type=Opaque" --chunk-size=10 -v=6
+I0818 13:01:57.009465   23477 loader.go:375] Config loaded from file:  /root/.kube/config
+I0818 13:01:57.023282   23477 round_trippers.go:443] GET https://127.0.0.1:6443/api/v1/namespaces/test/secrets?fieldSelector=metadata.name%3Dmysecret2%2Ctype%3DOpaque&limit=10 200 OK in 5 milliseconds
 NAME        TYPE     DATA   AGE
-mysecret2   Opaque   2      37h
+mysecret2   Opaque   2      38h
+
 ```
 
 2.  If `fieldSelector` can't address the requirement, `labelSelector` is used to as second option
-
-```
-kubectl get secret -n test -l name=cc1,location=xa --chunk-size=10 
-NAME        TYPE     DATA   AGE
-mysecret    Opaque   2      38h
-```
-
-**Note**: Please enable request trace by adding `--v=6` to  all above `kubectl` commands for REST API trace for UI integration
 
 ```
 kubectl get secret -n test -l name=cc1,location=xa --chunk-size=10  -v=6
@@ -118,6 +113,7 @@ I0818 12:49:37.163353   16057 round_trippers.go:443] GET https://127.0.0.1:6443/
 NAME       TYPE     DATA   AGE
 mysecret   Opaque   2      38h
 ```
+
 
 ## Reference
 [1] https://kubernetes.io/docs/reference/using-api/api-concepts/#retrieving-large-results-sets-in-chunks
