@@ -7,7 +7,7 @@
 
 ## Summary
 
-1. Tkestack LIST page has performance issue when data sets from server LIST API is too large,  it will cause the  page hung there for a little while and impact the server as well, worse the page enable auto-refresh
+1. Tkestack LIST page has performance issue when data sets from LIST API is too large,  it will cause the page hung there for a little while and impact the server as well, worse the page enable auto-refresh
 
 2. There is a gap that end user want to get a group of objects by combination query such as `displayName=xx` and `location=yy` from LIST page,  but only resource ID querying is supported for most of the case
 
@@ -15,14 +15,15 @@
 
 1. To address #1，Tkestack will leverage k8s API chunking feature for pagination solution, API chunking  has the ability to break a single large collection request into many smaller chunks while preserving the consistency of the total request. Each chunk can be returned sequentially which reduces both the total size of the request and allows user-oriented clients to display results incrementally to improve responsiveness
 
-2. To address #2，`Label Selector` and `Field Selector` will be used for combination query,  client pass the key/value pair selector to api-server for querying a group of k8s objects
+2. To address #2，`labelSelector` and`fieldSelector` will be used for combination query,  client pass the key/value pair selector to api-server to get a group of k8s objects
 
 ## Main proposal
-This doc provides the guidance for back-end and front-end Dev that use an unified approach to implement pagination and combination query,  also clarify the apply condition and limitation
+
+This document provides the guidance for back-end and front-end developer that use an unified approach to implement pagination and combination query,  also clarify the apply condition and limitation
 
 ### K8s api chunking
 
- Api chunking (`APIListChunking`) enabled by default from k8s 1.9.  Below example show how to retrieve secret resource in pages and visit partial result sets by `kubectl`. Assume that `limit/pageSize` is `2` and total secrets is `7`, that means client have to issue 4 requests to server get all secret resource, you can refer to [design doc](https://github.com/caesarxuchao/community/blob/adfa4fe78921887d2ad6822df4d4f0957996ad73/contributors/design-proposals/api-machinery/api-chunking.md)  for the design details
+ Api chunking (`APIListChunking`) enabled by default from k8s 1.9 and so does Tkestack. Below example show how to retrieve secret resource in pages and visit partial result sets by `kubectl`. Assume that `limit` is `2` and total secrets is `7`, that means client have to issue 4 LIST requests to server get all secret resources, you can refer to [design doc](https://github.com/caesarxuchao/community/blob/adfa4fe78921887d2ad6822df4d4f0957996ad73/contributors/design-proposals/api-machinery/api-chunking.md)  for the design details
 ```
 root@VM-0-127-ubuntu:~# kubectl get secret -n test --chunk-size=2 -v=6
 I0817 17:46:49.463526    7765 loader.go:375] Config loaded from file:  /root/.kube/config
@@ -40,7 +41,7 @@ mysecret5             Opaque                                2      19h
 mysecret6             Opaque                                2      19h
 ```
 
-Refer to the [design doc](https://github.com/caesarxuchao/community/blob/adfa4fe78921887d2ad6822df4d4f0957996ad73/contributors/design-proposals/api-machinery/api-chunking.md) ,   you can break responses into individual chunks by utilizing  `limit` and `continue` parameters in REST API. For example, if you wanted to receive a group of only 500 secrets at a time from 1450 secrets, tie a limit into the API request as below:
+Refer to the [design doc](https://github.com/caesarxuchao/community/blob/adfa4fe78921887d2ad6822df4d4f0957996ad73/contributors/design-proposals/api-machinery/api-chunking.md) ,  you can break responses into individual chunks by utilizing  `limit` and `continue` parameters in REST API. For example, if you wanted to receive a group of only 500 secrets at a time from 1450 secrets, tie a limit into the API request as below:
 
 ```
 GET /api/v1/secrets?limit=500
@@ -68,7 +69,7 @@ GET /api/v1/secrets?limit=500&continue=DEF...
 }
 ```
 
-`continue` and `remainingItemCount` as new parameter returned by server LIST API, there are some highlights and limitations when use API chunking: 
+`continue` and `remainingItemCount` as new parameter returned by LIST API, there are some highlights and limitations when use API chunking: 
  1. `continue` token is much like SQL cursor, that the client could pass to receive the next set of results, If the server does not return a `continue` token, the server must return all remaining results. The server may return no `continue` token on the last call
  2. If the required data to perform a LIST is no longer available in the storage back-end (old versions of objects snapshot in etcd3 are removed after 5 minutes by default)  by`continue` token, the server must return a 410 `Expired` status response , which means clients must start from the beginning
  3.  Client should range over the list with `continue` token from beginning on subsequent chunk reads to get the full list
@@ -80,21 +81,20 @@ GET /api/v1/secrets?limit=500&continue=DEF...
 
 In this case, client is able to fully support traditional `pagination` ,  since both `continue` and `remainingItemCount`returned by LIST API:
 1. `pageSize` = `limit`
-2. `totalSize`= `limt` + `remainingItemCount`in first request.  Client can calculate the page range by `totalSize/limt`as well,  this allow client show a list of page number for end user jump to
-3. `pageNum` is the `continue`token, but it is little difference from traditional `pageNum`,  traditional records in `pageNum`is in range `[pageNum*pageSize, pageNum*pageSize+pageSize]` , but for API chunking, whatever client jump to which `pageNum`,  the request just pass `continue`token base on previous result to LIST API,  this ensure the subsequent LIST API call range over full ordered list
+2. `totalSize`= `limt` + `remainingItemCount`in first LIST request.  Client can calculate available page range by `totalSize/limt`as well,  this allow client show a list of page number for end user jump to directly
+3. `pageNum` is the `continue`token, but it is little difference from traditional `pageNum`,  traditional records in `pageNum`is in range `[pageNum*pageSize, pageNum*pageSize+pageSize]` , but in API chunking, whatever client jump to which `pageNum`,  the request just pass `continue`token base on previous result to LIST API,  this ensure the subsequent LIST API call range over full ordered list
 
 ![enter image description here](../../../draw.io/blob/master/tke/ap-chunking.png)
-
 
 **User  case 2**:  LIST request have `labelSelector` or`fieldSelector` option
 
 In this case, since no `remainingItemCount` in the result , that means client can't calculate the page range for end user jump to, it is same as Pic 1 but only have 2 pages named  `previous page` and  `next page`
 
 ###  Combination query
-K8s native support  `labelSelector` or`fieldSelector` in LIST API to  identify or group the resources in Kubernetes  which have same key/value pairs attribute.  Client  should make decision to use `labelSelector` or`fieldSelector` according to blow principles:
 
-1.  `fieldSelector` is preferred to use for combination query, but it only works for general attribute such as  metadata.name, client should try it first
+K8s native support  `labelSelector` or`fieldSelector` in LIST API to identify or group the resources in Kubernetes  that have same key/value pairs attribute. Client should make the decision how to use `labelSelector` or`fieldSelector` according to blow principles:
 
+1.  `fieldSelector` is preferred to use at first, but it only works for general attribute such as  metadata.name
 ```
 kubectl get secret -n test --field-selector "metadata.name=mysecret2,type=Opaque" --chunk-size=10 -v=6
 I0818 13:01:57.009465   23477 loader.go:375] Config loaded from file:  /root/.kube/config
@@ -104,7 +104,7 @@ mysecret2   Opaque   2      38h
 
 ```
 
-2.  If `fieldSelector` can't address the requirement, `labelSelector` is used to as second option
+2.  If `fieldSelector` can't address the requirement, `labelSelector` is used to as second option, it applied to all the cases, since you can add any label to the object, later, you can use `labelSelector` to filter the objects what you want.  
 
 ```
 kubectl get secret -n test -l name=cc1,location=xa --chunk-size=10  -v=6
@@ -123,5 +123,3 @@ mysecret   Opaque   2      38h
 [3] https://github.com/caesarxuchao/community/blob/adfa4fe78921887d2ad6822df4d4f0957996ad73/contributors/design-proposals/api-machinery/api-chunking.md
 
 [4] https://github.com/kubernetes/kubernetes/issues/66981
-
-
