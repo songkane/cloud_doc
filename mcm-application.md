@@ -26,6 +26,7 @@ PlacementRule(placementrule.apps.open-cluster-management.io) 定义了可部署�
 ## 6. WorkFlow
 
 IBM 多集群基础架构
+
 ![enter image description here](images/4.png)
 
 多集群应用管理主要由一下5个Operator组成:
@@ -175,6 +176,6 @@ spec:
       lastUpdateTime: null
 ```
 
-## 7. 结论：
+## 8. 结论：
 
 基本满足所有的user case, 直接可用
