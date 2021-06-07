@@ -1,29 +1,29 @@
-# 理解 Open Cluster Manager Application Lifecycle
+# Open Cluster Manager Application Lifecycle
 
-## Architecture
+## 1. Architecture
 ![enter image description here](images/3.png)
 
-## Application
+## 2. Application
 
 Application(application.app.k8s.io) 用于对组成应用程序的 Kubernetes 资源进行分组。
 [API](https://github.com/kubernetes-sigs/application/blob/master/api/v1beta1/application_types.go) | [Sample](#application-sample)
 
-## Subscription
+## 3. Subscription
 
 Subscription(subscription.apps.open-cluster-management.io)允许集群订阅到一个源仓库（频道），它可以是以下类型：Git 仓库、Helm 发行 registry 或 Object Storage 仓库。
 [API](https://github.com/open-cluster-management/multicloud-operators-subscription/blob/main/pkg/apis/apps/v1/subscription_types.go) | [Sample](#subscription-sample)
 
-## Channel
+## 4. Channel
 
 Channel(channel.apps.open-cluster-management.io) 定义了订阅的源仓库，它可以是以下类型：Git、Helm release 和 Object storage 仓库，以及 hub 集群上的资源模板。
 [API](https://github.com/open-cluster-management/multicloud-operators-channel/blob/main/pkg/apis/apps/v1/channel_types.go) | [Sample](#channel-sample)
 
-## PlacementRule
+## 5. PlacementRule
 
 PlacementRule(placementrule.apps.open-cluster-management.io) 定义了可部署资源模板的目标集群。使用放置规则帮助您促进可部署资源的多集群部署。放置策略也用于监管和风险策略。
 [API](https://github.com/open-cluster-management/multicloud-operators-placementrule/blob/main/pkg/apis/apps/v1/placementrule_types.go) | [Sample](#placementrule-sample)
 
-## WorkFlow
+## 6. WorkFlow
 
 IBM 多集群基础架构
 ![enter image description here](images/4.png)
@@ -42,7 +42,7 @@ IBM 多集群基础架构
 
   1. 等待 `Deployable` 资源准备好后，`Managed` clusters 上面的 `Subscription` agent 会同步 `Hub` cluster 上面的 `Deployable` 资源，如果发现 `PlacementRule` 中包含自己，就会创建 `Deployable` template 的资源。
 
-## 示例
+## 7. 示例
 
 ### Application Sample
 
@@ -174,3 +174,7 @@ spec:
       ansiblejobs: {}
       lastUpdateTime: null
 ```
+
+## 7. 结论：
+
+基本满足所有的user case, 直接可用
