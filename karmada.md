@@ -15,11 +15,10 @@
 
 - 完全copy k8s 原生3大组件 apiserver, controller-manager, scheduler, 也就是，其中apiserver自己独享，因此需要独立etcd,  并替换掉原生的controller-manager和scheduler，因此完全兼容原生k8s对象。
 - 应用从单集群扩展为多集群时，不需要修改源文件，仅需要添加多集群的manifest包括PropagationPolicy和OverridePolicy，用户迁移和学习成本不大， 不像kubefed重新定义所有的k8s resource为kubefed resource
-- 不支持Helm chart这种标准应用程序多集群分发，从目前的架构上看也不好实现
+- kubectl需要切换context从而指定创建单体应用还是多集群应用
+- 不支持Helm chart这种标准k8s应用程序多集群分发，从目前的架构上看也不好实现
 - 不支持Publish和subscribe这种标准的Operator模式，也就是不支持多集群应用的full life cycle management：自动发布和升级
 - 目前只实现了push mode, 因此要求混合云集群中的apiserver 有public IP 或者member集群apiserver可访问, 不过看code 它预留了pull mode， 后续会消除这个依赖(专线依赖)
-
-![enter image description here](images/2.png)
 
 ```
 
@@ -35,6 +34,9 @@ const (
 )
 
 ```
+
+
+![enter image description here](images/2.png)
 
 4.  应用分发流程分析
 
