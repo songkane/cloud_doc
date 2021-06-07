@@ -1,4 +1,4 @@
-# Open Cluster Manager Application Lifecycle
+# Open Cluster Manager Application
 
 ## 1. Architecture
 ![enter image description here](images/3.png)
