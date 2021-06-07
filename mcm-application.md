@@ -1,29 +1,7 @@
-<!-- START doctoc generated TOC please keep comment here to allow auto update -->
-<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
-- [理解 Open Cluster Manager Application Lifecycle](#理解-open-cluster-manager-application-lifecycle)
-  - [Architecture](#architecture)
-  - [Application](#application)
-  - [Subscription](#subscription)
-  - [Channel](#channel)
-  - [PlacementRule](#placementrule)
-  - [WorkFlow](#workflow)
-  - [示例](#示例)
-    - [Application Sample](#application-sample)
-    - [Subscription Sample](#subscription-sample)
-    - [Channel Sample](#channel-sample)
-    - [PlacementRule Samele](#placementrule-samele)
-    - [Deployable Sample](#deployable-sample)
-
-<!-- END doctoc generated TOC please keep comment here to allow auto update -->
-
 # 理解 Open Cluster Manager Application Lifecycle
 
 ## Architecture
-<div align="center">
-    ![enter image description here](images/3.png)
-</div>
+![enter image description here](images/3.png)
 
 ## Application
 
@@ -48,9 +26,7 @@ PlacementRule(placementrule.apps.open-cluster-management.io) 定义了可部署�
 ## WorkFlow
 
 IBM 多集群基础架构
-<div align="center">
-    ![enter image description here](images/4.png)
-</div>
+![enter image description here](images/4.png)
 
 多集群应用管理主要由一下5个Operator组成:
 
